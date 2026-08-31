@@ -445,7 +445,15 @@ export default function App() {
   if (aba === "corrida") contador = { n: `${corridasSemana}/3`, r: "corridas na semana" };
 
   return (
-    <div style={{ background: C.fundo, color: C.txt, fontFamily: "ui-sans-serif, system-ui, sans-serif" }} className="min-h-screen pb-20">
+    <div
+      style={{
+        background: C.fundo,
+        color: C.txt,
+        fontFamily: "ui-sans-serif, system-ui, sans-serif",
+        paddingBottom: "calc(5rem + env(safe-area-inset-bottom, 0px))",
+      }}
+      className="min-h-screen pb-20"
+    >
       <style>{`
         input, select { font-variant-numeric: tabular-nums; }
         input:focus, button:focus-visible, select:focus { outline: 2px solid ${C.run}; outline-offset: 1px; }
@@ -468,7 +476,8 @@ export default function App() {
         {aba === "ficha" && <Ficha st={st} grava={grava} />}
       </div>
 
-      <nav className="fixed bottom-0 left-0 right-0 flex" style={{ background: C.sup, borderTop: `1px solid ${C.linha}` }}>
+      <nav className="fixed bottom-0 left-0 right-0 flex"
+        style={{ background: C.sup, borderTop: `1px solid ${C.linha}`, paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
         {abas.map((a) => {
           const I = a.i;
           const on = aba === a.k;
