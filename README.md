@@ -23,7 +23,8 @@ npm run lint     # oxlint
 - Tailwind CSS v4 pelo plugin oficial `@tailwindcss/vite`.
 - `recharts` para os gráficos e `lucide-react` para os ícones.
 - `index.html` em `pt-BR`, com `viewport-fit=cover` para o app ocupar a tela
-  inteira no celular.
+  inteira no celular, e a barra de abas reservando `env(safe-area-inset-bottom)`
+  para não ficar sob o indicador de home do iPhone.
 
 **App** — quatro abas, em `src/App.jsx`:
 
@@ -42,9 +43,10 @@ Build compila sem erro e o lint está zerado.
 
 ### O que falta
 
-- **Safe area do iOS.** A barra de abas é `fixed bottom-0` e não reserva
-  `env(safe-area-inset-bottom)`. Com `viewport-fit=cover`, num iPhone com
-  indicador de home ela fica parcialmente coberta.
+- **Safe area do topo.** A barra de abas já reserva
+  `env(safe-area-inset-bottom)`, mas o cabeçalho não reserva o inset de cima.
+  Com `viewport-fit=cover`, num iPhone com notch a data e o título do dia
+  encostam na barra de status.
 - **Não é PWA.** Sem manifest nem service worker, o app não instala na tela de
   início e não abre sem rede.
 - **Sem deploy.** Só roda em `localhost` — ainda não dá para usar na academia.
@@ -60,8 +62,8 @@ Build compila sem erro e o lint está zerado.
 
 ### Próximo passo
 
-Fazer o app rodar no celular de verdade: corrigir a safe area e publicar em
-algum lugar com HTTPS. São as duas coisas entre o app funcionando na tela do
-computador e ele sendo usado numa academia. O PWA vem logo depois, para instalar
-na tela de início e abrir sem rede — o que também deixa o `localStorage` menos
-frágil no dia a dia.
+Publicar em algum lugar com HTTPS. É o que separa o app de funcionar na tela do
+computador e ser usado numa academia — e sem isso não dá nem para conferir a
+safe area num iPhone real. O PWA vem logo depois, para instalar na tela de
+início e abrir sem rede, o que também deixa o `localStorage` menos frágil no dia
+a dia.
