@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+/* O app pinta o fundo no elemento raiz; sem isto a área de overscroll
+   e a faixa sob as barras do sistema (viewport-fit=cover) ficam brancas. */
+html,
+body {
+  background: #141917;
+}
