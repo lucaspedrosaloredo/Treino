@@ -352,7 +352,7 @@ const carregar = () => {
   try {
     const bruto = localStorage.getItem(KEY);
     return migra(bruto ? JSON.parse(bruto) : null);
-  } catch (e) {
+  } catch {
     return migra(null);
   }
 };
@@ -418,24 +418,16 @@ export default function App() {
   const [st, setSt] = useState(carregar);
   const [erro, setErro] = useState(null);
   const [aba, setAba] = useState("treino");
-  const pronto = true;
 
   const grava = (novo) => {
     setSt(novo);
     try {
       localStorage.setItem(KEY, JSON.stringify(novo));
       setErro(null);
-    } catch (e) {
+    } catch {
       setErro("Nao deu para salvar no aparelho. Verifique o espaco disponivel ou o modo privado do navegador.");
     }
   };
-
-  if (!pronto)
-    return (
-      <div style={{ background: C.fundo, color: C.fraco }} className="min-h-screen flex items-center justify-center text-sm">
-        Carregando seus dados…
-      </div>
-    );
 
   const abas = [
     { k: "treino", n: "Treino", i: Dumbbell },
@@ -969,7 +961,7 @@ function Backup({ st, grava }) {
     try {
       await navigator.clipboard.writeText(texto);
       setAviso("Copiado. Guarde num bloco de notas ou mande para voce mesmo.");
-    } catch (e) {
+    } catch {
       setAviso("Nao deu para copiar sozinho. Selecione o texto acima e copie na mao.");
     }
   };
@@ -981,7 +973,7 @@ function Backup({ st, grava }) {
       setAviso("Dados restaurados.");
       setModo(null);
       setTexto("");
-    } catch (e) {
+    } catch {
       setAviso("Esse texto nao e um backup valido. Cole o conteudo exato que foi exportado.");
     }
   };
