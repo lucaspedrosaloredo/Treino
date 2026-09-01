@@ -4,6 +4,9 @@ App pessoal de treino e corrida
 Roda no navegador, guarda tudo no próprio aparelho. Não há servidor, conta nem
 sincronização: os dados vivem no `localStorage`, sob a chave `treino:estado:v1`.
 
+Publicado em https://treino-pi-ten.vercel.app — dá para instalar na tela de
+início pelo Safari e usar sem rede.
+
 ## Como rodar
 
 ```bash
@@ -53,6 +56,16 @@ npm run lint     # oxlint
   assets, que o Vite marca como `crossorigin`. Registrado em `src/main.jsx` só
   no build de produção.
 
+**Deploy** — na Vercel, em https://treino-pi-ten.vercel.app:
+
+- Sem `vercel.json`. A Vercel reconhece o Vite sozinha, roda `vite build` e
+  serve `dist/`. Também não há reescrita de SPA a configurar, porque não existe
+  rota: as abas são estado do React, sem History API, então não há URL profunda
+  para cair em 404.
+- Precisa ficar na raiz do domínio. Nada define `base` no `vite.config.js`, então
+  o `start_url` e o `scope` do manifest, o escopo do service worker e a lista de
+  precache assumem `/`. Servido de um subcaminho, os três quebram de uma vez.
+
 **App** — quatro abas, em `src/App.jsx`:
 
 - **Treino** — fichas A a E, registro de carga e repetições por série. Sugere a
@@ -67,13 +80,11 @@ npm run lint     # oxlint
   exportar/importar e apagar tudo.
 
 Build compila sem erro e o lint está zerado. O app foi conferido sem rede num
-Chromium: com a rede cortada, ele recarrega do cache e abre normal.
+Chromium: com a rede cortada, ele recarrega do cache e abre normal. A safe area
+do topo foi conferida num iPhone, com o app instalado na tela de início.
 
 ### O que falta
 
-- **Sem deploy.** Só roda em `localhost` — ainda não dá para usar na academia.
-  Enquanto isso, o PWA não instala de verdade: fora de `localhost` o service
-  worker exige HTTPS, e a safe area do topo só dá para conferir num iPhone real.
 - **Backup é manual.** Exportar gera um texto para colar em outro lugar. Limpar
   o navegador ou trocar de celular sem exportar antes apaga tudo.
 - **Histórico não é editável.** Os treinos salvos entram em `logs` e alimentam os
@@ -86,7 +97,8 @@ Chromium: com a rede cortada, ele recarrega do cache e abre normal.
 
 ### Próximo passo
 
-Publicar em algum lugar com HTTPS. Continua sendo o que separa o app de funcionar
-na tela do computador e ser usado numa academia — e agora é também o que falta
-para o PWA valer: o manifest e o service worker já estão prontos, mas fora de
-`localhost` o navegador só instala e guarda os arquivos em HTTPS.
+**Backup que não dependa de lembrar.** Com o app publicado e em uso, os dados
+continuam só no `localStorage` de um aparelho: limpar os dados do site ou trocar
+de celular sem exportar antes apaga o histórico inteiro. Exportar já existe, mas
+é um texto que alguém precisa gerar e guardar por conta própria — e o que se
+perde agora não é um app vazio, é treino registrado.
