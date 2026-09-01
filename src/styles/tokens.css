@@ -1,0 +1,55 @@
+/* Tokens do app. A paleta continua sendo a das anilhas olímpicas — 25 kg
+   vermelho, 20 azul, 15 amarelo, 10 verde, barra prata —, mas agora mora num
+   lugar só, em vez de espalhada em estilo inline. */
+
+:root {
+  --fundo: #141917;
+  --sup: #1d2422;
+  --sup2: #252e2b;
+  --sup3: #2f3936;
+  --linha: #333d39;
+  --linha-forte: #46524d;
+
+  --txt: #e9e7e1;
+  --txt-fraco: #8b948d;
+  --txt-apagado: #6b736e;
+
+  --acento: #7fc4e8;
+  --perigo: #c4645c;
+  --perigo-fundo: #3a2320;
+  --perigo-borda: #4a2f2c;
+  --ok: #3e9e63;
+  --aviso: #e4b429;
+
+  --div-a: #d2352c;
+  --div-b: #2e6fb7;
+  --div-c: #e4b429;
+  --div-d: #3e9e63;
+  --div-e: #c4c9c2;
+
+  --raio: 4px;
+  --raio-g: 8px;
+  /* Alvo de toque mínimo confortável. */
+  --toque: 44px;
+
+  --sombra: 0 2px 12px rgb(0 0 0 / 35%);
+}
+
+/* Animações curtas e desligáveis. Quem pediu menos movimento no sistema não
+   deve precisar pedir de novo aqui. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+:root[data-animacoes="reduzidas"] *,
+:root[data-animacoes="reduzidas"] *::before,
+:root[data-animacoes="reduzidas"] *::after {
+  animation-duration: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+}

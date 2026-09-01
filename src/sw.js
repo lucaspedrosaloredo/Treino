@@ -29,6 +29,13 @@ self.addEventListener('activate', (evento) => {
   )
 })
 
+/* O app pergunta antes de atualizar: uma troca de worker recarrega a página, e
+   fazer isso no meio de uma série seria hostil. Quem decide a hora é quem está
+   treinando — a tela de Ajustes manda esta mensagem. */
+self.addEventListener('message', (evento) => {
+  if (evento.data && evento.data.tipo === 'ASSUMIR_AGORA') self.skipWaiting()
+})
+
 self.addEventListener('fetch', (evento) => {
   const req = evento.request
   if (req.method !== 'GET') return
