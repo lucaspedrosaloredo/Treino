@@ -23,8 +23,28 @@ npm run lint     # oxlint
 - Tailwind CSS v4 pelo plugin oficial `@tailwindcss/vite`.
 - `recharts` para os gráficos e `lucide-react` para os ícones.
 - `index.html` em `pt-BR`, com `viewport-fit=cover` para o app ocupar a tela
-  inteira no celular, e a barra de abas reservando `env(safe-area-inset-bottom)`
-  para não ficar sob o indicador de home do iPhone.
+  inteira no celular. A barra de abas reserva `env(safe-area-inset-bottom)` para
+  não ficar sob o indicador de home do iPhone, e o cabeçalho reserva
+  `env(safe-area-inset-top)` para não encostar na barra de status — essa regra
+  mora em `src/index.css`, fora das camadas do Tailwind, e por isso vence o
+  `pt-4` do `<header>`.
+
+**PWA** — instala na tela de início e abre sem rede:
+
+- `public/manifest.webmanifest` com nome "Treino", `display: standalone`,
+  `orientation: portrait` e as duas cores em `#141917`.
+- Ícones de 192 e 512, um 512 `maskable` e o `apple-touch-icon` de 180 — fundo
+  `#141917` com um T claro, gerados por `node scripts/gerar-icones.mjs`, que
+  escreve o PNG na mão com o `zlib` do próprio Node, sem dependência nova.
+- Service worker em `src/sw.js`, que é um modelo: no build, o plugin em
+  `vite.config.js` troca os marcadores pela lista real dos arquivos gerados
+  (os nomes com hash só existem depois do bundle) e por uma versão tirada do
+  hash do conteúdo, e escreve `dist/sw.js`. Cada build tem seu cache e apaga o
+  da versão anterior. Serve do cache primeiro; nas navegações devolve o
+  `index.html` guardado, que é o que faz o app abrir sem rede. A busca no cache
+  usa `ignoreVary`, senão o `Vary: Origin` da resposta não casa com o pedido dos
+  assets, que o Vite marca como `crossorigin`. Registrado em `src/main.jsx` só
+  no build de produção.
 
 **App** — quatro abas, em `src/App.jsx`:
 
@@ -39,17 +59,14 @@ npm run lint     # oxlint
 - **Ficha** — edição dos exercícios de cada dia, troca de nível, backup por
   exportar/importar e apagar tudo.
 
-Build compila sem erro e o lint está zerado.
+Build compila sem erro e o lint está zerado. O app foi conferido sem rede num
+Chromium: com a rede cortada, ele recarrega do cache e abre normal.
 
 ### O que falta
 
-- **Safe area do topo.** A barra de abas já reserva
-  `env(safe-area-inset-bottom)`, mas o cabeçalho não reserva o inset de cima.
-  Com `viewport-fit=cover`, num iPhone com notch a data e o título do dia
-  encostam na barra de status.
-- **Não é PWA.** Sem manifest nem service worker, o app não instala na tela de
-  início e não abre sem rede.
 - **Sem deploy.** Só roda em `localhost` — ainda não dá para usar na academia.
+  Enquanto isso, o PWA não instala de verdade: fora de `localhost` o service
+  worker exige HTTPS, e a safe area do topo só dá para conferir num iPhone real.
 - **Backup é manual.** Exportar gera um texto para colar em outro lugar. Limpar
   o navegador ou trocar de celular sem exportar antes apaga tudo.
 - **Histórico não é editável.** Os treinos salvos entram em `logs` e alimentam os
@@ -62,8 +79,7 @@ Build compila sem erro e o lint está zerado.
 
 ### Próximo passo
 
-Publicar em algum lugar com HTTPS. É o que separa o app de funcionar na tela do
-computador e ser usado numa academia — e sem isso não dá nem para conferir a
-safe area num iPhone real. O PWA vem logo depois, para instalar na tela de
-início e abrir sem rede, o que também deixa o `localStorage` menos frágil no dia
-a dia.
+Publicar em algum lugar com HTTPS. Continua sendo o que separa o app de funcionar
+na tela do computador e ser usado numa academia — e agora é também o que falta
+para o PWA valer: o manifest e o service worker já estão prontos, mas fora de
+`localhost` o navegador só instala e guarda os arquivos em HTTPS.
