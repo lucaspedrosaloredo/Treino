@@ -8,23 +8,23 @@
   "id": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#141917",
-  "theme_color": "#141917",
+  "background_color": "#020727",
+  "theme_color": "#020727",
   "icons": [
     {
-      "src": "/icons/icone-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icone-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icone-maskable-512.png",
+      "src": "/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
