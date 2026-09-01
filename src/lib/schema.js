@@ -72,6 +72,7 @@ export function configuracoesPadrao() {
     exibirRpe: false,
     exibirRir: true,
     preencherAnterior: true,
+    tema: "escuro",
     reduzirAnimacoes: false,
     vibrar: true,
     ultimaDataBackup: null,

@@ -57,6 +57,9 @@ export function montaSessaoDaFicha(estado, ficha) {
         repsMaxSnapshot: fe.repsMax,
         incrementoKgSnapshot: fe.incrementoKg,
         descansoSegundosSnapshot: fe.descansoSegundos,
+        /* O código da supersérie vai junto: a ficha pode mudar depois, e o
+           agrupamento desta sessão precisa continuar o que era no dia. */
+        supersetIdSnapshot: fe.supersetId,
         ordem,
         observacao: "",
         series: Array.from({ length: Math.max(1, fe.series || 1) }).map((_, i) =>

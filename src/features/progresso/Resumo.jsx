@@ -15,6 +15,7 @@ import Modal from "../../components/Modal.jsx";
 import Confirmar from "../../components/Confirmar.jsx";
 import { Metrica, EstadoVazio, Cartao, Titulo, Aviso } from "../../components/Basicos.jsx";
 import { GraficoTardio } from "./Progresso.jsx";
+import Calendario from "./Calendario.jsx";
 
 export default function Resumo({ estado, intervalo }) {
   const sessoes = useMemo(
@@ -61,7 +62,7 @@ export default function Resumo({ estado, intervalo }) {
           <GraficoTardio
             tipo="barra"
             dados={dadosConsistencia}
-            series={[{ chave: "treinos", nome: "Treinos", cor: "#7FC4E8" }]}
+            series={[{ chave: "treinos", nome: "Treinos", cor: "--serie-1" }]}
             altura={150}
           />
           <p className="text-xs mt-1" style={{ color: "var(--txt-fraco)" }}>
@@ -69,6 +70,9 @@ export default function Resumo({ estado, intervalo }) {
           </p>
         </>
       )}
+
+      <Titulo>Calendário</Titulo>
+      <Calendario estado={estado} />
 
       <Peso estado={estado} intervalo={intervalo} />
 
@@ -138,7 +142,7 @@ function Peso({ estado, intervalo }) {
 
       {dados.length > 1 ? (
         <>
-          <GraficoTardio tipo="linha" dados={dados} series={[{ chave: "peso", nome: "Peso (kg)", cor: "#C4C9C2" }]} altura={160} />
+          <GraficoTardio tipo="linha" dados={dados} series={[{ chave: "peso", nome: "Peso (kg)", cor: "--serie-4" }]} altura={160} />
           <p className="text-xs mt-1" style={{ color: "var(--txt-fraco)" }}>
             De {formataNumero(dados[0].peso)} kg a {formataNumero(dados[dados.length - 1].peso)} kg no período,
             em {dados.length} pesagens.

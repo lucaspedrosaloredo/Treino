@@ -17,7 +17,7 @@ export default function Cronometro({ cronometro }) {
       style={{
         bottom: "calc(56px + env(safe-area-inset-bottom, 0px))",
         background: acabou ? "var(--ok)" : "var(--sup3)",
-        color: acabou ? "#0d1a12" : "var(--txt)",
+        color: acabou ? "var(--sobre-ok)" : "var(--txt)",
         borderTop: "1px solid var(--linha)",
         paddingLeft: "calc(0.75rem + env(safe-area-inset-left, 0px))",
         paddingRight: "calc(0.75rem + env(safe-area-inset-right, 0px))",

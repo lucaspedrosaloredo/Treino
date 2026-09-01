@@ -3,6 +3,7 @@ import { Smartphone, RefreshCw, ChevronDown } from "lucide-react";
 
 import { useAcao, useEstado } from "../../state/contexto.js";
 import { MODOS_AGENDA } from "../../lib/schema.js";
+import { TEMAS } from "../../lib/tema.js";
 import { fichasAtivas, proximasFolgas, ehDiaDeTrabalho } from "../../lib/agenda.js";
 import { pesoAtual } from "../../lib/calculos.js";
 import { formataNumero } from "../../lib/numbers.js";
@@ -257,9 +258,16 @@ function Aparencia() {
 
   return (
     <div>
+      <Selecao
+        rotulo="Tema"
+        className="mb-2"
+        value={cfg.tema || "escuro"}
+        onChange={(e) => despacha({ tipo: "CONFIG_ALTERADA", mudancas: { tema: e.target.value } })}
+        opcoes={Object.entries(TEMAS).map(([valor, rotulo]) => ({ valor, rotulo }))}
+      />
       <p className="text-xs mb-3" style={{ color: "var(--txt-fraco)", lineHeight: 1.6 }}>
-        O app é escuro por opção, não por falta de tema claro: um tema claro pela metade fica pior que
-        tema nenhum, e ainda não há um feito por inteiro.
+        O escuro continua sendo o padrão, pensado para academia com luz baixa. O claro não é o escuro
+        invertido: acento, verde e amarelo são mais escuros nele, senão o texto sumiria no branco.
       </p>
       <Interruptor
         rotulo="Reduzir animações"

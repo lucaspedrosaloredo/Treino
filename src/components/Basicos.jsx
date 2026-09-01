@@ -103,9 +103,9 @@ export function EstadoVazio({ titulo, texto, acao, icone: Icone }) {
 export function Aviso({ tipo = "info", children }) {
   const cores = {
     info: { background: "var(--sup2)", color: "var(--txt)", borda: "var(--linha)" },
-    ok: { background: "#1E3327", color: "#A9DCBB", borda: "#2E5540" },
-    erro: { background: "var(--perigo-fundo)", color: "#F0B9B3", borda: "var(--perigo-borda)" },
-    atencao: { background: "#33301E", color: "#E8D9A0", borda: "#544C2E" },
+    ok: { background: "var(--aviso-ok-fundo)", color: "var(--aviso-ok-txt)", borda: "var(--aviso-ok-borda)" },
+    erro: { background: "var(--perigo-fundo)", color: "var(--aviso-erro-txt)", borda: "var(--perigo-borda)" },
+    atencao: { background: "var(--aviso-atencao-fundo)", color: "var(--aviso-atencao-txt)", borda: "var(--aviso-atencao-borda)" },
   }[tipo];
 
   return (

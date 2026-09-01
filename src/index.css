@@ -5,7 +5,7 @@
    e a faixa sob as barras do sistema (viewport-fit=cover) ficam brancas. */
 html,
 body {
-  background: #141917;
+  background: var(--fundo);
 }
 
 /* Com viewport-fit=cover e o status bar style `black-translucent` do

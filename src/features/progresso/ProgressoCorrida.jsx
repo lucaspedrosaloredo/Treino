@@ -80,7 +80,7 @@ export default function ProgressoCorrida({ estado, intervalo }) {
       <GraficoTardio
         tipo="barra"
         dados={porSemana.map((s) => ({ rotulo: formataDataCurta(s.semana), km: Math.round(s.distancia * 10) / 10 }))}
-        series={[{ chave: "km", nome: "km", cor: "#7FC4E8" }]}
+        series={[{ chave: "km", nome: "km", cor: "--serie-1" }]}
         altura={160}
       />
       <p className="text-xs mt-1" style={{ color: "var(--txt-fraco)" }}>
