@@ -5,13 +5,13 @@ import { useAcao, useEstado } from "../../state/contexto.js";
 import { MODOS_AGENDA } from "../../lib/schema.js";
 import { fichasAtivas, proximasFolgas, ehDiaDeTrabalho } from "../../lib/agenda.js";
 import { pesoAtual } from "../../lib/calculos.js";
-import { formataNumero, paraNumeroPositivo, paraInteiroPositivo } from "../../lib/numbers.js";
+import { formataNumero } from "../../lib/numbers.js";
 import { DIAS_SEMANA, formataData, hoje } from "../../lib/dates.js";
 import { useInstalacao } from "../../hooks/useInstalacao.js";
 import { useAtualizacao } from "../../hooks/useAtualizacao.js";
 
 import Botao from "../../components/Botao.jsx";
-import Campo, { Selecao } from "../../components/Campo.jsx";
+import Campo, { Selecao, CampoNumerico } from "../../components/Campo.jsx";
 import { Aviso, Cartao } from "../../components/Basicos.jsx";
 import Fichas from "../musculacao/Fichas.jsx";
 import MeusPlanos from "../corrida/MeusPlanos.jsx";
@@ -96,14 +96,11 @@ function Perfil() {
         Registrar, editar e ver o histórico de peso fica na aba Progresso, no Resumo.
       </p>
 
-      <Campo
+      <CampoNumerico
         rotulo="Meta de peso (opcional)"
-        type="text"
-        inputMode="decimal"
         className="mb-3"
-        ajuda="Só um número de referência. O app não julga se ele sobe ou desce."
-        value={estado.perfil.metaPeso ?? ""}
-        onChange={(e) => despacha({ tipo: "PERFIL_ALTERADO", mudancas: { metaPeso: paraNumeroPositivo(e.target.value) } })}
+        valor={estado.perfil.metaPeso}
+        aoMudar={(v) => despacha({ tipo: "PERFIL_ALTERADO", mudancas: { metaPeso: v } })}
       />
 
       <div className="grid grid-cols-2 gap-2">
@@ -219,21 +216,16 @@ function TreinosEAgenda() {
       />
 
       <div className="grid grid-cols-2 gap-2 mb-3">
-        <Campo
+        <CampoNumerico
           rotulo="Descanso padrão (s)"
-          type="number"
-          inputMode="numeric"
-          min="0"
-          value={cfg.descansoPadraoSegundos}
-          onChange={(e) => despacha({ tipo: "CONFIG_ALTERADA", mudancas: { descansoPadraoSegundos: paraInteiroPositivo(e.target.value) ?? 0 } })}
+          inteiro
+          valor={cfg.descansoPadraoSegundos}
+          aoMudar={(v) => despacha({ tipo: "CONFIG_ALTERADA", mudancas: { descansoPadraoSegundos: v ?? 0 } })}
         />
-        <Campo
+        <CampoNumerico
           rotulo="Incremento padrão (kg)"
-          type="text"
-          inputMode="decimal"
-          value={cfg.incrementoPadrao}
-          ajuda="Usado em exercício novo"
-          onChange={(e) => despacha({ tipo: "CONFIG_ALTERADA", mudancas: { incrementoPadrao: paraNumeroPositivo(e.target.value) ?? 2.5 } })}
+          valor={cfg.incrementoPadrao}
+          aoMudar={(v) => despacha({ tipo: "CONFIG_ALTERADA", mudancas: { incrementoPadrao: v ?? 2.5 } })}
         />
       </div>
 

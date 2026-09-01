@@ -3,10 +3,9 @@ import { ArrowDown, ArrowUp, Copy, Plus, Trash2, Archive, ArchiveRestore, Pencil
 
 import { useAcao, useEstado } from "../../state/contexto.js";
 import { CORES_DIVISAO, GRUPOS_MUSCULARES, EQUIPAMENTOS, TIPOS_REGISTRO, criaExercicio } from "../../lib/schema.js";
-import { paraNumeroPositivo, paraInteiroPositivo } from "../../lib/numbers.js";
 
 import Botao, { BotaoIcone } from "../../components/Botao.jsx";
-import Campo, { CampoTexto, Selecao } from "../../components/Campo.jsx";
+import Campo, { CampoTexto, Selecao, CampoNumerico } from "../../components/Campo.jsx";
 import Modal from "../../components/Modal.jsx";
 import Confirmar from "../../components/Confirmar.jsx";
 import { Cartao, EstadoVazio, Segmentado, Etiqueta } from "../../components/Basicos.jsx";
@@ -366,12 +365,9 @@ function EditorExercicio({ fichaId, fichaExercicioId, aoFechar }) {
         opcoes={Object.entries(TIPOS_REGISTRO).map(([valor, rotulo]) => ({ valor, rotulo }))} />
 
       <div className="grid grid-cols-3 gap-2 mb-3">
-        <Campo rotulo="Séries" type="number" inputMode="numeric" min="1" value={fe.series}
-          onChange={(e) => muda({ series: paraInteiroPositivo(e.target.value) ?? 1 })} />
-        <Campo rotulo="Reps mín." type="number" inputMode="numeric" min="0" value={fe.repsMin ?? ""}
-          onChange={(e) => muda({ repsMin: paraNumeroPositivo(e.target.value) })} />
-        <Campo rotulo="Reps máx." type="number" inputMode="numeric" min="0" value={fe.repsMax ?? ""}
-          onChange={(e) => muda({ repsMax: paraNumeroPositivo(e.target.value) })} />
+        <CampoNumerico rotulo="Séries" inteiro valor={fe.series} aoMudar={(v) => muda({ series: v ?? 1 })} />
+        <CampoNumerico rotulo="Reps mín." inteiro valor={fe.repsMin} aoMudar={(v) => muda({ repsMin: v })} />
+        <CampoNumerico rotulo="Reps máx." inteiro valor={fe.repsMax} aoMudar={(v) => muda({ repsMax: v })} />
       </div>
 
       <div className="grid grid-cols-2 gap-2 mb-3">
@@ -390,21 +386,17 @@ function EditorExercicio({ fichaId, fichaExercicioId, aoFechar }) {
           ))}
           <option value="custom" style={{ background: "var(--sup)" }}>Personalizado</option>
         </Selecao>
-        <Campo rotulo="Incremento (kg)" type="number" inputMode="decimal" step="any" min="0" value={fe.incrementoKg}
-          onChange={(e) => muda({ incrementoKg: paraNumeroPositivo(e.target.value) ?? 0 })} />
+        <CampoNumerico rotulo="Incremento (kg)" valor={fe.incrementoKg} aoMudar={(v) => muda({ incrementoKg: v ?? 0 })} />
       </div>
 
       <div className="grid grid-cols-3 gap-2 mb-3">
-        <Campo rotulo="Descanso (s)" type="number" inputMode="numeric" min="0" value={fe.descansoSegundos}
-          onChange={(e) => muda({ descansoSegundos: paraInteiroPositivo(e.target.value) ?? 0 })} />
-        <Campo rotulo="RIR alvo" type="number" inputMode="numeric" min="0" max="10" value={fe.rirAlvo ?? ""}
-          onChange={(e) => muda({ rirAlvo: paraNumeroPositivo(e.target.value) })} />
-        <Campo rotulo="RPE alvo" type="number" inputMode="numeric" min="1" max="10" value={fe.rpeAlvo ?? ""}
-          onChange={(e) => muda({ rpeAlvo: paraNumeroPositivo(e.target.value) })} />
+        <CampoNumerico rotulo="Descanso (s)" inteiro valor={fe.descansoSegundos} aoMudar={(v) => muda({ descansoSegundos: v ?? 0 })} />
+        <CampoNumerico rotulo="RIR alvo" inteiro valor={fe.rirAlvo} aoMudar={(v) => muda({ rirAlvo: v })} />
+        <CampoNumerico rotulo="RPE alvo" inteiro valor={fe.rpeAlvo} aoMudar={(v) => muda({ rpeAlvo: v })} />
       </div>
 
-      <Campo rotulo="Carga inicial (kg, opcional)" className="mb-3" type="number" inputMode="decimal" step="any" min="0"
-        value={fe.cargaInicialKg ?? ""} onChange={(e) => muda({ cargaInicialKg: paraNumeroPositivo(e.target.value) })} />
+      <CampoNumerico rotulo="Carga inicial (kg, opcional)" className="mb-3" valor={fe.cargaInicialKg}
+        aoMudar={(v) => muda({ cargaInicialKg: v })} />
 
       <Campo rotulo="Supersérie (mesmo código junta exercícios)" className="mb-3" value={fe.supersetId ?? ""}
         ajuda="Deixe vazio se não usa. Exercícios com o mesmo código são feitos em sequência."

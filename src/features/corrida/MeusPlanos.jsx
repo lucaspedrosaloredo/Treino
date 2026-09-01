@@ -4,11 +4,11 @@ import { ArrowDown, ArrowUp, Copy, Plus, Trash2, Pencil, CheckCircle2 } from "lu
 import { useAcao, useEstado } from "../../state/contexto.js";
 import { TIPOS_SESSAO_CORRIDA, STATUS_SESSAO_PLANEJADA } from "../../lib/schema.js";
 import { interpretaDuracao, formataDuracao } from "../../lib/calculos.js";
-import { paraNumeroPositivo } from "../../lib/numbers.js";
+
 import { DIAS_SEMANA } from "../../lib/dates.js";
 
 import Botao, { BotaoIcone } from "../../components/Botao.jsx";
-import Campo, { CampoTexto, Selecao } from "../../components/Campo.jsx";
+import Campo, { CampoTexto, Selecao, CampoNumerico } from "../../components/Campo.jsx";
 import Modal from "../../components/Modal.jsx";
 import Confirmar from "../../components/Confirmar.jsx";
 import { Cartao, EstadoVazio, Etiqueta } from "../../components/Basicos.jsx";
@@ -282,8 +282,8 @@ function EditorSessaoPlanejada({ planoId, sessao, aoFechar }) {
         onChange={(e) => muda({ objetivo: e.target.value })} />
 
       <div className="grid grid-cols-2 gap-2 mb-3">
-        <Campo rotulo="Distância prevista (km)" type="text" inputMode="decimal" value={sessao.distanciaKm ?? ""}
-          onChange={(e) => muda({ distanciaKm: paraNumeroPositivo(e.target.value) })} />
+        <CampoNumerico rotulo="Distância prevista (km)" valor={sessao.distanciaKm}
+          aoMudar={(v) => muda({ distanciaKm: v })} />
         <Campo rotulo="Duração prevista" type="text" value={duracao} ajuda="minutos ou mm:ss"
           onChange={(e) => { setDuracao(e.target.value); muda({ duracaoSegundos: interpretaDuracao(e.target.value) }); }} />
       </div>

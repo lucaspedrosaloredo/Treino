@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 
 import { formataNumero } from "../../lib/numbers.js";
+import { CampoNumerico } from "../../components/Campo.jsx";
 
 /* A linha de série segue o que Strong, Hevy e JEFIT consolidaram: número da
    série, o que foi feito nela da última vez, os campos e a marcação de feita.
@@ -81,26 +82,22 @@ export default function LinhaSerie({
           {textoAnterior}
         </button>
 
-        <input
-          type="number"
-          inputMode="decimal"
-          step="any"
-          min="0"
-          aria-label={mostraCarga ? `Carga da ${rotuloSerie}` : `Tempo da ${rotuloSerie}`}
-          value={serie.cargaKg ?? ""}
+        <CampoNumerico
+          rotulo={mostraCarga ? `Carga da ${rotuloSerie}` : `Tempo da ${rotuloSerie}`}
+          rotuloOculto
+          valor={serie.cargaKg}
           placeholder={sugestaoCarga !== null && sugestaoCarga !== undefined ? formataNumero(sugestaoCarga) : "—"}
-          onChange={(e) => aoMudar({ cargaKg: e.target.value })}
+          aoMudar={(v) => aoMudar({ cargaKg: v })}
           style={estiloCampo}
         />
 
-        <input
-          type="number"
-          inputMode="numeric"
-          min="0"
-          aria-label={`Repetições da ${rotuloSerie}`}
-          value={serie.repeticoes ?? ""}
+        <CampoNumerico
+          rotulo={`Repetições da ${rotuloSerie}`}
+          rotuloOculto
+          inteiro
+          valor={serie.repeticoes}
           placeholder={repsAlvo ? String(repsAlvo) : "—"}
-          onChange={(e) => aoMudar({ repeticoes: e.target.value })}
+          aoMudar={(v) => aoMudar({ repeticoes: v })}
           style={estiloCampo}
         />
 
@@ -128,14 +125,12 @@ export default function LinhaSerie({
           {exibirRir && (
             <label className="text-xs flex items-center gap-1" style={{ color: "var(--txt-apagado)" }}>
               RIR
-              <input
-                type="number"
-                inputMode="numeric"
-                min="0"
-                max="10"
-                value={serie.rir ?? ""}
-                onChange={(e) => aoMudar({ rir: e.target.value })}
-                aria-label={`Repetições na reserva da ${rotuloSerie}`}
+              <CampoNumerico
+                rotulo={`Repetições na reserva da ${rotuloSerie}`}
+                rotuloOculto
+                inteiro
+                valor={serie.rir}
+                aoMudar={(v) => aoMudar({ rir: v })}
                 style={{ ...estiloCampo, width: 52, minHeight: 34, padding: "4px" }}
               />
             </label>
@@ -143,14 +138,12 @@ export default function LinhaSerie({
           {exibirRpe && (
             <label className="text-xs flex items-center gap-1" style={{ color: "var(--txt-apagado)" }}>
               RPE
-              <input
-                type="number"
-                inputMode="numeric"
-                min="1"
-                max="10"
-                value={serie.rpe ?? ""}
-                onChange={(e) => aoMudar({ rpe: e.target.value })}
-                aria-label={`Esforço percebido da ${rotuloSerie}`}
+              <CampoNumerico
+                rotulo={`Esforço percebido da ${rotuloSerie}`}
+                rotuloOculto
+                inteiro
+                valor={serie.rpe}
+                aoMudar={(v) => aoMudar({ rpe: v })}
                 style={{ ...estiloCampo, width: 52, minHeight: 34, padding: "4px" }}
               />
             </label>

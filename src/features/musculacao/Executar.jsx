@@ -22,9 +22,21 @@ export default function Executar({ irPara }) {
   const estado = useEstado();
   const despacha = useAcao();
   const sessao = estado.sessaoEmAndamento;
+  /* O resumo mora aqui, e não na tela da sessão: finalizar zera
+     `sessaoEmAndamento`, o que desmonta aquela tela — e o resumo iria junto,
+     antes de aparecer. */
+  const [resumo, setResumo] = useState(null);
 
-  if (!sessao) return <SemSessao estado={estado} despacha={despacha} irPara={irPara} />;
-  return <SessaoAberta estado={estado} despacha={despacha} sessao={sessao} />;
+  return (
+    <>
+      {sessao ? (
+        <SessaoAberta estado={estado} despacha={despacha} sessao={sessao} aoResumir={setResumo} />
+      ) : (
+        <SemSessao estado={estado} despacha={despacha} irPara={irPara} />
+      )}
+      <ResumoDaSessao resumo={resumo} aoFechar={() => setResumo(null)} />
+    </>
+  );
 }
 
 /* ------------------------------------------------------------ sem sessão */
@@ -96,10 +108,9 @@ function SemSessao({ estado, despacha, irPara }) {
 
 /* --------------------------------------------------------- sessão aberta */
 
-function SessaoAberta({ estado, despacha, sessao }) {
+function SessaoAberta({ estado, despacha, sessao, aoResumir }) {
   const cronometro = useCronometroDescanso({ vibrar: estado.configuracoes.vibrar });
   const [confirmacao, setConfirmacao] = useState(null);
-  const [resumo, setResumo] = useState(null);
   const [abertos, setAbertos] = useState(() => new Set([0]));
 
   const totalSeries = sessao.exercicios.reduce((s, e) => s + e.series.length, 0);
@@ -154,7 +165,7 @@ function SessaoAberta({ estado, despacha, sessao }) {
       }
     });
 
-    setResumo({
+    aoResumir({
       volume: volumeSessao({ ...sessao, exercicios: sessao.exercicios.map((e) => ({ ...e, series: e.series.filter((s) => s.concluida) })) }),
       series: feitas,
       exercicios: sessao.exercicios.filter((e) => e.series.some((s) => s.concluida)).length,
@@ -229,7 +240,6 @@ function SessaoAberta({ estado, despacha, sessao }) {
 
       <Cronometro cronometro={cronometro} />
       <Confirmar pedido={confirmacao} aoFechar={() => setConfirmacao(null)} />
-      <ResumoDaSessao resumo={resumo} aoFechar={() => setResumo(null)} />
     </div>
   );
 }

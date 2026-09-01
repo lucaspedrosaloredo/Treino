@@ -40,7 +40,10 @@ export default function ProgressoTela() {
 
   return (
     <div>
-      <div className="flex gap-2 mb-3 overflow-x-auto" style={{ paddingBottom: 2 }}>
+      {/* Sete períodos não cabem numa linha a 320px. Quebrar em duas linhas
+          mostra todos de uma vez; uma faixa rolável esconderia opção atrás de
+          um gesto que ninguém adivinha. */}
+      <div role="group" aria-label="Período" className="flex flex-wrap gap-2 mb-3">
         {[...Object.entries(PERIODOS), ["personalizado", { rotulo: "Escolher" }]].map(([chave, p]) => (
           <button
             key={chave}

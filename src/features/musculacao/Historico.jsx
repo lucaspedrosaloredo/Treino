@@ -4,10 +4,10 @@ import { Pencil, Trash2, ChevronDown } from "lucide-react";
 import { useAcao, useEstado } from "../../state/contexto.js";
 import { formataData } from "../../lib/dates.js";
 import { volumeSessao, seriesConcluidas, formataDuracao } from "../../lib/calculos.js";
-import { formataNumero, paraNumeroPositivo, paraInteiroPositivo } from "../../lib/numbers.js";
+import { formataNumero } from "../../lib/numbers.js";
 
 import Botao, { BotaoIcone } from "../../components/Botao.jsx";
-import Campo, { CampoTexto } from "../../components/Campo.jsx";
+import Campo, { CampoTexto, CampoNumerico } from "../../components/Campo.jsx";
 import Modal from "../../components/Modal.jsx";
 import Confirmar from "../../components/Confirmar.jsx";
 import { Cartao, EstadoVazio, Aviso } from "../../components/Basicos.jsx";
@@ -152,34 +152,26 @@ function EditorSessao({ sessaoId, aoFechar }) {
           {ex.series.map((serie, j) => (
             <div key={serie.id} className="grid gap-2 mb-2 items-center" style={{ gridTemplateColumns: "1.5rem 1fr 1fr" }}>
               <div className="text-xs" style={{ color: "var(--txt-fraco)" }}>{j + 1}ª</div>
-              <Campo
+              <CampoNumerico
                 rotulo="Carga (kg)"
                 rotuloOculto
-                type="number"
-                inputMode="decimal"
-                step="any"
-                min="0"
-                value={serie.cargaKg ?? ""}
-                onChange={(e) =>
+                valor={serie.cargaKg}
+                aoMudar={(v) =>
                   despacha({
                     tipo: "SESSAO_HISTORICO_SERIE_ATUALIZADA",
-                    sessaoId, indiceExercicio: i, indiceSerie: j,
-                    mudancas: { cargaKg: paraNumeroPositivo(e.target.value) },
+                    sessaoId, indiceExercicio: i, indiceSerie: j, mudancas: { cargaKg: v },
                   })
                 }
               />
-              <Campo
+              <CampoNumerico
                 rotulo="Repetições"
                 rotuloOculto
-                type="number"
-                inputMode="numeric"
-                min="0"
-                value={serie.repeticoes ?? ""}
-                onChange={(e) =>
+                inteiro
+                valor={serie.repeticoes}
+                aoMudar={(v) =>
                   despacha({
                     tipo: "SESSAO_HISTORICO_SERIE_ATUALIZADA",
-                    sessaoId, indiceExercicio: i, indiceSerie: j,
-                    mudancas: { repeticoes: paraInteiroPositivo(e.target.value) },
+                    sessaoId, indiceExercicio: i, indiceSerie: j, mudancas: { repeticoes: v },
                   })
                 }
               />

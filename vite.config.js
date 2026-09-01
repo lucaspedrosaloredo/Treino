@@ -51,4 +51,7 @@ export default defineConfig({
     globals: true,
     include: ['src/**/*.test.{js,jsx}'],
   },
+  /* Sem isto o JSX dos testes sai no formato antigo, que exige `React` no
+     escopo, e todo teste de componente quebra com "React is not defined". */
+  esbuild: { jsx: 'automatic' },
 })

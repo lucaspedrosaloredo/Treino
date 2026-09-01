@@ -147,8 +147,18 @@ export function reducer(estado, acao) {
          continuam legíveis mesmo sem a ficha de origem. */
       return comCarimbo({ ...estado, fichas: remove(estado.fichas, acao.fichaId) });
 
-    case "FICHA_MOVIDA":
-      return comCarimbo({ ...estado, fichas: moveEReordena(estado.fichas, acao.fichaId, acao.direcao) });
+    case "FICHA_MOVIDA": {
+      const alvo = estado.fichas.find((f) => f.id === acao.fichaId);
+      if (!alvo) return estado;
+      /* Reordena dentro do grupo que está na tela. Ativas e arquivadas dividem
+         a mesma lista e podem ter a mesma `ordem`, então mexer na lista inteira
+         faria a ficha ativa trocar de lugar com uma arquivada — invisível para
+         quem tocou o botão, e por isso parecia que nada acontecia. */
+      const mesmoGrupo = (f) => Boolean(f.arquivada) === Boolean(alvo.arquivada);
+      const reordenado = moveEReordena(estado.fichas.filter(mesmoGrupo), acao.fichaId, acao.direcao);
+      const porId = new Map(reordenado.map((f) => [f.id, f]));
+      return comCarimbo({ ...estado, fichas: estado.fichas.map((f) => porId.get(f.id) || f) });
+    }
 
     /* ------------------------------------ exercícios dentro da ficha */
     case "FICHA_EXERCICIO_ADICIONADO": {
