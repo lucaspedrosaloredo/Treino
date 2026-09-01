@@ -22,17 +22,22 @@ npm run lint     # oxlint
 - Vite + React em JavaScript, na raiz do repositório.
 - Tailwind CSS v4 pelo plugin oficial `@tailwindcss/vite`.
 - `recharts` para os gráficos e `lucide-react` para os ícones.
-- `index.html` em `pt-BR`, com `viewport-fit=cover` para o app ocupar a tela
-  inteira no celular. A barra de abas reserva `env(safe-area-inset-bottom)` para
-  não ficar sob o indicador de home do iPhone, e o cabeçalho reserva
-  `env(safe-area-inset-top)` para não encostar na barra de status — essa regra
-  mora em `src/index.css`, fora das camadas do Tailwind, e por isso vence o
-  `pt-4` do `<header>`.
+- `index.html` em `pt-BR`, com `viewport-fit=cover` e
+  `apple-mobile-web-app-status-bar-style: black-translucent` para o app ocupar a
+  tela inteira no celular — os dois juntos, porque sem o segundo o iOS desenha o
+  PWA abaixo da barra de status e todo `env(safe-area-inset-top)` vale zero.
+  A barra de abas reserva `env(safe-area-inset-bottom)` para não ficar sob o
+  indicador de home do iPhone, e o cabeçalho reserva `env(safe-area-inset-top)`
+  para não encostar na barra de status — essa regra mora em `src/index.css`,
+  fora das camadas do Tailwind, e por isso vence o `pt-4` do `<header>`. Os
+  insets laterais entram no container raiz, na barra de abas e no modal, para o
+  conteúdo não sumir sob o notch com o aparelho deitado.
 
 **PWA** — instala na tela de início e abre sem rede:
 
 - `public/manifest.webmanifest` com nome "Treino", `display: standalone`,
-  `orientation: portrait` e as duas cores em `#020727`.
+  `orientation: portrait` e as duas cores em `#141917`, a mesma do fundo do
+  app — senão a splash do Android abre numa cor que o app nunca mostra.
 - Ícones de 192 e 512, um 512 `maskable`, o `apple-touch-icon` de 180 e o
   `favicon-32.png` — PNGs na raiz de `public`, apontados pelo manifest e pelo
   `index.html`.
@@ -40,7 +45,9 @@ npm run lint     # oxlint
   `vite.config.js` troca os marcadores pela lista real dos arquivos gerados
   (os nomes com hash só existem depois do bundle) e por uma versão tirada do
   hash do conteúdo, e escreve `dist/sw.js`. Cada build tem seu cache e apaga o
-  da versão anterior. Serve do cache primeiro; nas navegações devolve o
+  da versão anterior — só quando ativa, e ele não chama `skipWaiting`, então
+  espera as abas do build antigo fecharem em vez de puxar o cache debaixo de
+  uma página aberta. Serve do cache primeiro; nas navegações devolve o
   `index.html` guardado, que é o que faz o app abrir sem rede. A busca no cache
   usa `ignoreVary`, senão o `Vary: Origin` da resposta não casa com o pedido dos
   assets, que o Vite marca como `crossorigin`. Registrado em `src/main.jsx` só

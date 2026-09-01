@@ -6,17 +6,16 @@
 const CACHE = 'treino-__VERSAO__'
 const ARQUIVOS = ['__ARQUIVOS__']
 
-/* Baixa tudo de uma vez e já assume o lugar do worker anterior. */
+/* Baixa tudo de uma vez. Sem `skipWaiting`: enquanto houver aba do build
+   anterior aberta, este worker espera para ativar. */
 self.addEventListener('install', (evento) => {
-  evento.waitUntil(
-    caches
-      .open(CACHE)
-      .then((cache) => cache.addAll(ARQUIVOS))
-      .then(() => self.skipWaiting()),
-  )
+  evento.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ARQUIVOS)))
 })
 
-/* Cada build tem seu cache; os das versões antigas saem daqui. */
+/* Cada build tem seu cache; os das versões antigas saem daqui — e a essa
+   altura não há mais página aberta usando os arquivos deles, porque a
+   ativação esperou. O `claim` vale na primeira instalação, que não tem
+   worker anterior e assume a página já aberta. */
 self.addEventListener('activate', (evento) => {
   evento.waitUntil(
     caches

@@ -7,7 +7,8 @@ body {
   background: #141917;
 }
 
-/* Com viewport-fit=cover o conteúdo sobe até a barra de status; a barra de
+/* Com viewport-fit=cover e o status bar style `black-translucent` do
+   `index.html`, o conteúdo sobe até a barra de status; a barra de
    abas já reserva o inset de baixo, e aqui o cabeçalho reserva o de cima.
    A regra fica fora das camadas do Tailwind, então vence o pt-4 do header —
    e o 1rem do calc repõe esse mesmo espaço. */
