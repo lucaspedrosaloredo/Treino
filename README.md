@@ -32,10 +32,10 @@ npm run lint     # oxlint
 **PWA** — instala na tela de início e abre sem rede:
 
 - `public/manifest.webmanifest` com nome "Treino", `display: standalone`,
-  `orientation: portrait` e as duas cores em `#141917`.
-- Ícones de 192 e 512, um 512 `maskable` e o `apple-touch-icon` de 180 — fundo
-  `#141917` com um T claro, gerados por `node scripts/gerar-icones.mjs`, que
-  escreve o PNG na mão com o `zlib` do próprio Node, sem dependência nova.
+  `orientation: portrait` e as duas cores em `#020727`.
+- Ícones de 192 e 512, um 512 `maskable`, o `apple-touch-icon` de 180 e o
+  `favicon-32.png` — PNGs na raiz de `public`, apontados pelo manifest e pelo
+  `index.html`.
 - Service worker em `src/sw.js`, que é um modelo: no build, o plugin em
   `vite.config.js` troca os marcadores pela lista real dos arquivos gerados
   (os nomes com hash só existem depois do bundle) e por uma versão tirada do
