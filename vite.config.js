@@ -46,4 +46,9 @@ function serviceWorker() {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss(), serviceWorker()],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    include: ['src/**/*.test.{js,jsx}'],
+  },
 })
