@@ -376,7 +376,14 @@ function Campo({ className = "", style = {}, ...p }) {
 function Dialogo({ dados, fechar }) {
   if (!dados) return null;
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.75)", zIndex: 50 }}>
+    <div
+      className="fixed inset-0 flex items-center justify-center"
+      style={{
+        background: "rgba(0,0,0,0.75)",
+        zIndex: 50,
+        padding: "calc(1rem + env(safe-area-inset-top, 0px)) calc(1rem + env(safe-area-inset-right, 0px)) calc(1rem + env(safe-area-inset-bottom, 0px)) calc(1rem + env(safe-area-inset-left, 0px))",
+      }}
+    >
       <div className="w-full p-4" style={{ maxWidth: 380, background: C.sup, borderRadius: 6, border: `1px solid ${C.linha}` }}>
         <div className="text-sm mb-4" style={{ color: C.txt, whiteSpace: "pre-line", lineHeight: 1.55 }}>{dados.texto}</div>
         <div className="flex gap-2">
@@ -451,6 +458,8 @@ export default function App() {
         color: C.txt,
         fontFamily: "ui-sans-serif, system-ui, sans-serif",
         paddingBottom: "calc(5rem + env(safe-area-inset-bottom, 0px))",
+        paddingLeft: "env(safe-area-inset-left, 0px)",
+        paddingRight: "env(safe-area-inset-right, 0px)",
       }}
       className="min-h-screen pb-20"
     >
@@ -477,7 +486,13 @@ export default function App() {
       </div>
 
       <nav className="fixed bottom-0 left-0 right-0 flex"
-        style={{ background: C.sup, borderTop: `1px solid ${C.linha}`, paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+        style={{
+          background: C.sup,
+          borderTop: `1px solid ${C.linha}`,
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          paddingLeft: "env(safe-area-inset-left, 0px)",
+          paddingRight: "env(safe-area-inset-right, 0px)",
+        }}>
         {abas.map((a) => {
           const I = a.i;
           const on = aba === a.k;
