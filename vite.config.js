@@ -46,4 +46,12 @@ function serviceWorker() {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss(), serviceWorker()],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    include: ['src/**/*.test.{js,jsx}'],
+  },
+  /* Sem isto o JSX dos testes sai no formato antigo, que exige `React` no
+     escopo, e todo teste de componente quebra com "React is not defined". */
+  esbuild: { jsx: 'automatic' },
 })
