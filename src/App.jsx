@@ -367,8 +367,11 @@ function Campo({ className = "", style = {}, ...p }) {
     <input
       {...p}
       onWheel={travaScroll}
-      className={"p-2 text-sm " + className}
-      style={{ background: C.sup2, color: C.txt, border: `1px solid ${C.linha}`, borderRadius: 3, ...style }}
+      className={"p-2 " + className}
+      /* Sem `minWidth: 0` o input não encolhe abaixo da largura intrínseca dele
+         (umas 20 letras) e estoura a linha no celular, por mais que o container
+         mande caber. O tamanho da fonte vem do `index.css`. */
+      style={{ background: C.sup2, color: C.txt, border: `1px solid ${C.linha}`, borderRadius: 3, minWidth: 0, ...style }}
     />
   );
 }
@@ -614,30 +617,35 @@ function Treino({ st, grava }) {
   );
 }
 
+/* A linha de série segue o que os apps do ramo consolidaram (Strong, Hevy,
+   JEFIT): o número da série, o que foi feito nela da última vez, e só então os
+   dois campos. As larguras ficam numa grade só, para cabeçalho e linhas
+   permanecerem alinhados por mais estreita que seja a tela. */
+const GRADE_SERIE = "1.75rem minmax(0, 3.75rem) minmax(0, 1fr) minmax(0, 1fr)";
+
 function Exercicio({ ex, rasc, ultima, setRasc, cor }) {
   const [aberto, setAberto] = useState(false);
   const topo = parseInt(String(ex.r).split("-").pop(), 10);
 
+  const kgs = ultima ? ultima.series.map((s) => parseFloat(s.kg)).filter((n) => !isNaN(n)) : [];
+  const maxKg = kgs.length ? Math.max(...kgs) : null;
+
   let sugestao = null;
-  if (ultima && ex.inc > 0) {
-    const kgs = ultima.series.map((s) => parseFloat(s.kg)).filter((n) => !isNaN(n));
+  if (ultima && ex.inc > 0 && maxKg !== null) {
     const bateu = ultima.series.every((s) => parseInt(s.reps, 10) >= topo);
-    const maxKg = kgs.length ? Math.max(...kgs) : null;
-    if (maxKg !== null) {
-      sugestao = bateu
-        ? { kg: maxKg + ex.inc, txt: `Bateu todas as reps. Suba para ${maxKg + ex.inc} kg.` }
-        : { kg: maxKg, txt: `Repita ${maxKg} kg e busque ${topo} reps em todas as séries.` };
-    }
+    sugestao = bateu
+      ? { kg: maxKg + ex.inc, txt: `Bateu todas as reps. Suba para ${maxKg + ex.inc} kg.` }
+      : { kg: maxKg, txt: `Repita ${maxKg} kg e busque ${topo} reps em todas as séries.` };
   }
 
   return (
     <div className="mb-2" style={{ background: C.sup, borderRadius: 4, borderLeft: `3px solid ${cor}` }}>
       <button onClick={() => setAberto(!aberto)} className="w-full flex items-center justify-between gap-2 p-3 text-left">
-        <div>
+        <div className="min-w-0">
           <div className="text-sm" style={{ fontWeight: 500 }}>{ex.n}</div>
           <div className="text-xs mt-1" style={{ color: C.fraco }}>
             {ex.s} × {ex.r}
-            {ultima && ` · última: ${ultima.series.map((s) => `${s.kg || "-"}×${s.reps || "-"}`).join("  ")}`}
+            {maxKg !== null && ` · última: ${maxKg} kg`}
           </div>
         </div>
         <ChevronDown size={16} style={{ color: C.fraco, flexShrink: 0, transform: aberto ? "rotate(180deg)" : "none" }} />
@@ -650,22 +658,29 @@ function Exercicio({ ex, rasc, ultima, setRasc, cor }) {
               {sugestao.txt}
             </div>
           )}
-          <div className="flex gap-2 mb-1 text-xs" style={{ color: C.fraco }}>
-            <div className="w-8" />
-            <div className="flex-1">Carga (kg)</div>
-            <div className="flex-1">Reps</div>
+          <div className="grid gap-2 mb-1 text-xs" style={{ gridTemplateColumns: GRADE_SERIE, color: C.fraco }}>
+            <div />
+            <div>Anterior</div>
+            <div className="text-center">Carga</div>
+            <div className="text-center">Reps</div>
           </div>
-          {Array.from({ length: ex.s }).map((_, i) => (
-            <div key={i} className="flex gap-2 mb-2 items-center">
-              <div className="w-8 text-xs" style={{ color: C.fraco }}>{i + 1}ª</div>
-              <Campo type="number" inputMode="decimal" value={(rasc[i] || {}).kg ?? ""}
-                placeholder={sugestao ? String(sugestao.kg) : "—"}
-                onChange={(ev) => setRasc(ex.id, i, "kg", ev.target.value)} className="flex-1" />
-              <Campo type="number" inputMode="numeric" value={(rasc[i] || {}).reps ?? ""}
-                placeholder={String(topo)}
-                onChange={(ev) => setRasc(ex.id, i, "reps", ev.target.value)} className="flex-1" />
-            </div>
-          ))}
+          {Array.from({ length: ex.s }).map((_, i) => {
+            const ant = ultima && ultima.series[i];
+            return (
+              <div key={i} className="grid gap-2 mb-2 items-center" style={{ gridTemplateColumns: GRADE_SERIE }}>
+                <div className="text-xs" style={{ color: C.fraco }}>{i + 1}ª</div>
+                <div className="text-xs truncate" style={{ color: C.fraco }}>
+                  {ant && (ant.kg || ant.reps) ? `${ant.kg || "—"}×${ant.reps || "—"}` : "—"}
+                </div>
+                <Campo type="number" inputMode="decimal" value={(rasc[i] || {}).kg ?? ""}
+                  placeholder={sugestao ? String(sugestao.kg) : "—"}
+                  onChange={(ev) => setRasc(ex.id, i, "kg", ev.target.value)} className="text-center" />
+                <Campo type="number" inputMode="numeric" value={(rasc[i] || {}).reps ?? ""}
+                  placeholder={String(topo)}
+                  onChange={(ev) => setRasc(ex.id, i, "reps", ev.target.value)} className="text-center" />
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

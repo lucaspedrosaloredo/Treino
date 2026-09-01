@@ -15,3 +15,12 @@ body {
 header {
   padding-top: calc(1rem + env(safe-area-inset-top, 0px));
 }
+
+/* O iOS dá zoom em qualquer campo com menos de 16px quando ele recebe o foco,
+   e não desfaz sozinho: a tela fica deslocada no meio do preenchimento. Como a
+   regra está fora das camadas do Tailwind, ela vence o tamanho das utilitárias. */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
