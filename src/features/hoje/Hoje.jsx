@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Play, Footprints, Scale, Sparkles } from "lucide-react";
+import { Play, Footprints, Scale, Sparkles, Download } from "lucide-react";
 
 import { useAcao, useEstado } from "../../state/contexto.js";
 import { planoDoDia, proximaSessaoCorrida, fichasAtivas, ehDiaDeTrabalho } from "../../lib/agenda.js";
@@ -7,6 +7,8 @@ import { TIPOS_SESSAO_CORRIDA } from "../../lib/schema.js";
 import { dentroDoPeriodo, volumeSessao, pesoAtual, formataDuracao } from "../../lib/calculos.js";
 import { formataNumero, paraNumeroPositivo } from "../../lib/numbers.js";
 import { formataData, hoje, somaDias } from "../../lib/dates.js";
+import { precisaLembrarBackup } from "../../lib/backup.js";
+import { useExportarBackup } from "../../hooks/useBackup.js";
 
 import Botao from "../../components/Botao.jsx";
 import Campo from "../../components/Campo.jsx";
@@ -19,6 +21,8 @@ export default function Hoje({ irPara }) {
   const despacha = useAcao();
   const [registrandoCorrida, setRegistrandoCorrida] = useState(false);
   const [pesando, setPesando] = useState(false);
+  const [backupFeito, setBackupFeito] = useState(false);
+  const exportarBackup = useExportarBackup();
 
   const hojeChave = hoje();
   const treino = planoDoDia(estado, hojeChave);
@@ -75,6 +79,15 @@ export default function Hoje({ irPara }) {
           Bom treino, {estado.perfil.nome}.
         </p>
       )}
+
+      <LembreteDeBackup
+        estado={estado}
+        feito={backupFeito}
+        aoExportar={async () => {
+          await exportarBackup();
+          setBackupFeito(true);
+        }}
+      />
 
       {emAndamento && (
         <Cartao cor="var(--acento)" className="mb-3">
@@ -181,6 +194,43 @@ export default function Hoje({ irPara }) {
         vinculo={corrida ? { plano: corrida.plano, sessao: corrida.sessao } : null}
       />
       <AtualizarPeso aberto={pesando} aoFechar={() => setPesando(false)} pesoAnterior={peso} />
+    </div>
+  );
+}
+
+/* O único backup que salva é o que já saiu do aparelho. Limpar os dados do
+   navegador apaga tudo e não tem desfazer, então o app cobra em vez de deixar
+   a lembrança por conta de quem usa. */
+function LembreteDeBackup({ estado, feito, aoExportar }) {
+  const lembrete = precisaLembrarBackup(estado, hoje());
+
+  if (feito) {
+    return (
+      <div className="mb-3">
+        <Aviso tipo="ok">Backup exportado. Guarde o arquivo fora do celular — em e-mail, nuvem ou computador.</Aviso>
+      </div>
+    );
+  }
+  if (!lembrete) return null;
+
+  return (
+    <div className="mb-3">
+      <Aviso tipo="atencao">
+        {lembrete.motivo === "nunca" ? (
+          <>
+            <strong>Você ainda não exportou um backup.</strong> Seus {lembrete.registros} registros existem só neste
+            aparelho: limpar os dados do navegador ou trocar de celular apaga tudo, sem desfazer.
+          </>
+        ) : (
+          <>
+            <strong>Seu último backup tem {lembrete.dias} dias.</strong> O que veio depois dele existe só neste
+            aparelho.
+          </>
+        )}
+      </Aviso>
+      <Botao variante="primario" onClick={aoExportar}>
+        <Download size={16} /> Exportar backup agora
+      </Botao>
     </div>
   );
 }

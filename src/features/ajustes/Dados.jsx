@@ -3,9 +3,10 @@ import { Download, Upload, Share2, FileSpreadsheet, ShieldAlert } from "lucide-r
 
 import { useAcao, useEstado } from "../../state/contexto.js";
 import {
-  montaBackup, nomeDoArquivo, interpretaBackup, baixaArquivo, tentaCompartilhar,
-  leArquivoComoTexto, csvSessoes, csvCorridas, csvPesagens, resumoDoEstado,
+  montaBackup, interpretaBackup, baixaArquivo, leArquivoComoTexto,
+  csvSessoes, csvCorridas, csvPesagens, resumoDoEstado,
 } from "../../lib/backup.js";
+import { useExportarBackup } from "../../hooks/useBackup.js";
 import { estadoSemeado } from "../../state/persistencia.js";
 import { hoje, formataData } from "../../lib/dates.js";
 
@@ -22,12 +23,10 @@ export default function Dados() {
   const [previa, setPrevia] = useState(null);
   const [confirmacao, setConfirmacao] = useState(null);
 
+  const exportarBackup = useExportarBackup();
+
   const exportar = async ({ compartilhar }) => {
-    const conteudo = JSON.stringify(montaBackup(estado), null, 2);
-    const nome = nomeDoArquivo();
-    const compartilhou = compartilhar ? await tentaCompartilhar(nome, conteudo) : false;
-    if (!compartilhou) baixaArquivo(nome, conteudo);
-    despacha({ tipo: "CONFIG_ALTERADA", mudancas: { ultimaDataBackup: hoje() } });
+    const { nome, compartilhou } = await exportarBackup({ compartilhar });
     setAviso({ tipo: "ok", texto: compartilhou ? "Backup compartilhado." : `Arquivo ${nome} gerado.` });
   };
 

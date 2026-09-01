@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { interpretaBackup, montaBackup, resumoDoEstado, csvSessoes, csvCorridas, csvPesagens, nomeDoArquivo } from "./backup.js";
+import {
+  interpretaBackup, montaBackup, resumoDoEstado, csvSessoes, csvCorridas, csvPesagens,
+  nomeDoArquivo, precisaLembrarBackup,
+} from "./backup.js";
 import { estadoSemeado } from "../state/persistencia.js";
 import { NIVEL1 } from "../data/legadoV1.js";
 
@@ -91,5 +94,44 @@ describe("CSV", () => {
 
   it("exporta pesagens", () => {
     expect(csvPesagens(estado)).toContain("01/08/2026;80");
+  });
+});
+
+describe("lembrete de backup", () => {
+  const comDados = (config = {}) => ({
+    sessoesMusculacao: [{ id: "1" }, { id: "2" }],
+    corridas: [{ id: "c" }],
+    pesagens: [],
+    configuracoes: config,
+  });
+
+  it("não cobra quem ainda não tem nada a perder", () => {
+    expect(precisaLembrarBackup({ sessoesMusculacao: [], corridas: [], pesagens: [], configuracoes: {} }, "2026-09-01")).toBeNull();
+  });
+
+  it("cobra quem nunca exportou, contando os registros em risco", () => {
+    const r = precisaLembrarBackup(comDados(), "2026-09-01");
+    expect(r.motivo).toBe("nunca");
+    expect(r.registros).toBe(3);
+  });
+
+  it("fica quieto logo depois de um backup", () => {
+    expect(precisaLembrarBackup(comDados({ ultimaDataBackup: "2026-08-31" }), "2026-09-01")).toBeNull();
+  });
+
+  it("volta a cobrar quando o backup envelhece", () => {
+    const r = precisaLembrarBackup(comDados({ ultimaDataBackup: "2026-08-12" }), "2026-09-01");
+    expect(r.motivo).toBe("antigo");
+    expect(r.dias).toBe(20);
+  });
+
+  it("respeita o limite que receber", () => {
+    expect(precisaLembrarBackup(comDados({ ultimaDataBackup: "2026-08-29" }), "2026-09-01", 3).motivo).toBe("antigo");
+    expect(precisaLembrarBackup(comDados({ ultimaDataBackup: "2026-08-29" }), "2026-09-01", 30)).toBeNull();
+  });
+
+  it("não quebra com data de backup inválida", () => {
+    expect(() => precisaLembrarBackup(comDados({ ultimaDataBackup: "ontem" }), "2026-09-01")).not.toThrow();
+    expect(precisaLembrarBackup(comDados({ ultimaDataBackup: "ontem" }), "2026-09-01")).toBeNull();
   });
 });

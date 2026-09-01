@@ -83,6 +83,11 @@ Em Ajustes › Dados e privacidade:
 Um backup da versão anterior do app também é aceito: ele é migrado na
 importação.
 
+**A aba Hoje cobra o backup** quando você nunca exportou ou quando o último tem
+mais de duas semanas, com um botão para exportar ali mesmo. Não é zelo
+excessivo: enquanto a cópia não sai do aparelho, qualquer limpeza do navegador
+leva tudo, e não existe desfazer.
+
 ## Migração da versão 1
 
 Quem já usava a versão anterior não precisa fazer nada: na primeira abertura o
@@ -144,10 +149,16 @@ Regras que a estrutura sustenta:
   perderia todo o tempo de bolso.
 - **Gráficos.** O Recharts fica num chunk separado, carregado só ao abrir o
   Progresso. O bundle inicial é cerca de 360 kB em vez de 580 kB.
-- **Service worker.** Precache por build, com versão tirada do hash do conteúdo.
-  Ele não chama `skipWaiting` sozinho: espera as abas do build antigo fecharem,
-  ou você mandar atualizar em Ajustes › Instalação — trocar de versão no meio de
-  uma série recarregaria a página.
+- **Service worker e atualização.** Precache por build, com versão tirada do
+  hash do conteúdo. A versão nova assume **sozinha na abertura seguinte**,
+  desde que não haja treino em andamento — trocar de versão recarrega a página,
+  e no meio de uma série isso seria hostil. Com treino aberto, o app avisa que
+  a nova entra ao finalizar.
+  Já foi diferente, e o resultado foi ruim: o worker esperava *todas* as abas
+  fecharem, o que num celular quase nunca acontece. A versão nova ficava presa
+  indefinidamente e a única saída era limpar os dados do site — levando o
+  histórico junto. Se a troca automática falhar, aparece um botão em vez de
+  tentar de novo em laço.
 - **Raiz do domínio.** Nada define `base` no `vite.config.js`, então o
   `start_url` e o `scope` do manifest, o escopo do service worker e a lista de
   precache assumem `/`. Servido de um subcaminho, os três quebram de uma vez.

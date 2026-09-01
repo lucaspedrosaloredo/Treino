@@ -285,12 +285,13 @@ function Aparencia() {
 
 function Instalacao() {
   const { instalado, podeChamarPrompt, ehIOS, instalar } = useInstalacao();
-  const { temAtualizacao, atualizar } = useAtualizacao();
+  const estadoApp = useEstado();
+  const { precisaDecidir, atualizar } = useAtualizacao({ podeAtualizarAgora: !estadoApp.sessaoEmAndamento });
   const estado = useEstado();
 
   return (
     <div>
-      {temAtualizacao && (
+      {precisaDecidir && (
         <div className="mb-3">
           <Aviso tipo="ok">
             <strong>Nova versão disponível.</strong> Atualizar recarrega a página — seus dados não são afetados.
