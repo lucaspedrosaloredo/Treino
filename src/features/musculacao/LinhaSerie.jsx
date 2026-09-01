@@ -39,6 +39,9 @@ export function CabecalhoSeries({ mostraCarga = true }) {
 export default function LinhaSerie({
   serie,
   indice,
+  /* Numa supersérie a primeira coluna identifica o exercício (A, B…), não a
+     série — a volta é que está numerada, uma linha acima. */
+  rotuloColuna,
   anterior,
   sugestaoCarga,
   repsAlvo,
@@ -60,7 +63,7 @@ export default function LinhaSerie({
     <div className="mb-2">
       <div className="grid items-center" style={{ gridTemplateColumns: GRADE_SERIE, gap: 5 }}>
         <div className="text-xs" style={{ color: serie.tipo === "aquecimento" ? "var(--aviso)" : "var(--txt-fraco)" }}>
-          {serie.tipo === "aquecimento" ? "aq" : `${indice + 1}ª`}
+          {serie.tipo === "aquecimento" ? "aq" : (rotuloColuna ?? `${indice + 1}ª`)}
         </div>
 
         <button
@@ -113,7 +116,7 @@ export default function LinhaSerie({
             borderRadius: 3,
             background: serie.concluida ? "var(--ok)" : "var(--sup2)",
             border: `1px solid ${serie.concluida ? "var(--ok)" : "var(--linha)"}`,
-            color: serie.concluida ? "#0d1a12" : "var(--txt-apagado)",
+            color: serie.concluida ? "var(--sobre-ok)" : "var(--txt-apagado)",
           }}
         >
           <Check size={16} />

@@ -1,6 +1,11 @@
 /* Tokens do app. A paleta continua sendo a das anilhas olímpicas — 25 kg
-   vermelho, 20 azul, 15 amarelo, 10 verde, barra prata —, mas agora mora num
-   lugar só, em vez de espalhada em estilo inline. */
+   vermelho, 20 azul, 15 amarelo, 10 verde, barra prata — mas mora num lugar
+   só, em vez de espalhada em estilo inline.
+
+   O tema é resolvido em JavaScript: a preferência pode ser "sistema", e o
+   provider traduz isso para `data-tema="claro"` ou `"escuro"` antes de pintar.
+   Assim o CSS precisa de um bloco por tema, sem duplicar a paleta clara dentro
+   de uma media query. */
 
 :root {
   --fundo: #141917;
@@ -11,8 +16,12 @@
   --linha-forte: #46524d;
 
   --txt: #e9e7e1;
-  --txt-fraco: #8b948d;
-  --txt-apagado: #6b736e;
+  /* Só duas faixas de texto secundário, e não três: abaixo destes valores o
+     contraste cai do mínimo de 4,5:1 sobre as superfícies do app. O terceiro
+     nível de hierarquia é feito com tamanho e posição, não com mais uma cor
+     apagada — que era o que havia aqui antes, a 3,2:1. */
+  --txt-fraco: #8e9792;
+  --txt-apagado: #868f8a;
 
   --acento: #7fc4e8;
   --perigo: #c4645c;
@@ -27,12 +36,90 @@
   --div-d: #3e9e63;
   --div-e: #c4c9c2;
 
+  /* Texto que fica *em cima* de um fundo colorido. Sem isto, inverter o tema
+     deixa texto claro sobre fundo claro. */
+  --sobre-acento: #0d1a20;
+  --sobre-ok: #0d1a12;
+  --perigo-solido: #8e3a33;
+  --sobre-perigo: #ffffff;
+
+  --aviso-ok-fundo: #1e3327;
+  --aviso-ok-txt: #a9dcbb;
+  --aviso-ok-borda: #2e5540;
+  --aviso-atencao-fundo: #33301e;
+  --aviso-atencao-txt: #e8d9a0;
+  --aviso-atencao-borda: #544c2e;
+  --aviso-erro-txt: #f0b9b3;
+
+  /* Gráficos. Ficam como token porque o Recharts recebe cor por propriedade e
+     não resolve `var()` sozinho — quem lê estes valores é o JavaScript. */
+  --grafico-eixo: #8b948d;
+  --grafico-grade: #333d39;
+  --grafico-fundo: #1d2422;
+  --serie-1: #7fc4e8;
+  --serie-2: #e4b429;
+  --serie-3: #3e9e63;
+  --serie-4: #c4c9c2;
+
   --raio: 4px;
   --raio-g: 8px;
   /* Alvo de toque mínimo confortável. */
   --toque: 44px;
 
   --sombra: 0 2px 12px rgb(0 0 0 / 35%);
+  color-scheme: dark;
+}
+
+/* Tema claro. Não é o escuro com as cores trocadas: contraste sobre branco
+   exige acento, verde e amarelo mais escuros, senão o texto some. */
+:root[data-tema="claro"] {
+  --fundo: #f4f5f3;
+  --sup: #ffffff;
+  --sup2: #eceeea;
+  --sup3: #dfe3de;
+  --linha: #d5d9d3;
+  --linha-forte: #b4bab3;
+
+  --txt: #1a201d;
+  --txt-fraco: #555d57;
+  --txt-apagado: #656b67;
+
+  --acento: #1c6a91;
+  --perigo: #a3352c;
+  --perigo-fundo: #fbeae8;
+  --perigo-borda: #e8c4bf;
+  --ok: #2b7a4b;
+  --aviso: #8a6a12;
+
+  --div-a: #b32a22;
+  --div-b: #235a95;
+  --div-c: #8a6a12;
+  --div-d: #2b7a4b;
+  --div-e: #6f766e;
+
+  --sobre-acento: #ffffff;
+  --sobre-ok: #ffffff;
+  --perigo-solido: #a3352c;
+  --sobre-perigo: #ffffff;
+
+  --aviso-ok-fundo: #e7f3ea;
+  --aviso-ok-txt: #1d5c38;
+  --aviso-ok-borda: #b9d9c5;
+  --aviso-atencao-fundo: #fbf3dd;
+  --aviso-atencao-txt: #6b520c;
+  --aviso-atencao-borda: #e3d3a4;
+  --aviso-erro-txt: #8e2c24;
+
+  --grafico-eixo: #555d57;
+  --grafico-grade: #d5d9d3;
+  --grafico-fundo: #ffffff;
+  --serie-1: #1c6a91;
+  --serie-2: #8a6a12;
+  --serie-3: #2b7a4b;
+  --serie-4: #6f766e;
+
+  --sombra: 0 2px 12px rgb(0 0 0 / 12%);
+  color-scheme: light;
 }
 
 /* Animações curtas e desligáveis. Quem pediu menos movimento no sistema não

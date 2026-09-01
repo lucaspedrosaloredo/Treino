@@ -43,7 +43,7 @@ abrindo com o celular sem rede.
 - **Corrida** — *Plano* da semana atual, *Histórico* de corridas e *Meus planos*
   para editar a periodização semana a semana.
 - **Progresso** — filtros de período e três subtelas: Resumo, Musculação e
-  Corrida, mais o peso corporal.
+  Corrida, mais o calendário do mês e o peso corporal.
 - **Ajustes** — perfil, agenda, fichas, planos, aparência, dados e instalação.
 
 ## Como o app decide o próximo treino
@@ -58,6 +58,23 @@ Três modos, em Ajustes › Treinos e agenda:
 
 Em qualquer modo, começar outra ficha fora da ordem continua valendo: o que o
 app faz é sugerir, não mandar.
+
+## Superséries
+
+Marque dois exercícios vizinhos com o mesmo código de supersérie na ficha e eles
+passam a ser um bloco só na execução: a unidade vira a **volta**, não o
+exercício — uma série de A, uma de B, e o descanso só no fim. Em cartões
+separados seria preciso rolar para cima e para baixo entre uma série e outra.
+
+O código precisa estar em exercícios **vizinhos**. Dois iguais em pontos
+distantes da ficha não são supersérie, são engano de digitação, e juntá-los
+mudaria a ordem do treino sem ninguém ter pedido.
+
+## Calendário
+
+A aba Progresso tem a grade do mês, com bolinha cheia para treino e anel para
+corrida — forma diferente, e não só cor, para o dia ser legível sem depender de
+enxergar a diferença entre azuis. Tocar num dia mostra o que aconteceu nele.
 
 ## Progressão de carga
 
@@ -82,6 +99,11 @@ Em Ajustes › Dados e privacidade:
 
 Um backup da versão anterior do app também é aceito: ele é migrado na
 importação.
+
+**A aba Hoje cobra o backup** quando você nunca exportou ou quando o último tem
+mais de duas semanas, com um botão para exportar ali mesmo. Não é zelo
+excessivo: enquanto a cópia não sai do aparelho, qualquer limpeza do navegador
+leva tudo, e não existe desfazer.
 
 ## Migração da versão 1
 
@@ -144,10 +166,29 @@ Regras que a estrutura sustenta:
   perderia todo o tempo de bolso.
 - **Gráficos.** O Recharts fica num chunk separado, carregado só ao abrir o
   Progresso. O bundle inicial é cerca de 360 kB em vez de 580 kB.
-- **Service worker.** Precache por build, com versão tirada do hash do conteúdo.
-  Ele não chama `skipWaiting` sozinho: espera as abas do build antigo fecharem,
-  ou você mandar atualizar em Ajustes › Instalação — trocar de versão no meio de
-  uma série recarregaria a página.
+- **Tema claro.** Existe e é completo: escuro, claro ou seguir o sistema, em
+  Ajustes › Aparência. O claro não é o escuro invertido — acento, verde e
+  amarelo são mais escuros nele, senão sumiriam no branco. O tema é resolvido
+  em JavaScript antes de pintar, para o CSS não precisar duplicar a paleta
+  dentro de uma media query, e a cor da barra do navegador acompanha.
+  As cores dos gráficos são lidas dos tokens em tempo de render: o Recharts
+  recebe cor por atributo do SVG, e atributo não resolve `var()`.
+- **Contraste medido, não estimado.** Um teste percorre as cinco abas nos dois
+  temas e mede o contraste de cada texto contra o fundo real dele. Foi assim que
+  se descobriu que o cinza mais apagado já falhava o mínimo de 4,5:1 no tema
+  escuro, desde antes — o app tem duas faixas de texto secundário, e não três,
+  porque abaixo disso não há contraste que preste. O terceiro nível de
+  hierarquia é feito com tamanho e posição.
+- **Service worker e atualização.** Precache por build, com versão tirada do
+  hash do conteúdo. A versão nova assume **sozinha na abertura seguinte**,
+  desde que não haja treino em andamento — trocar de versão recarrega a página,
+  e no meio de uma série isso seria hostil. Com treino aberto, o app avisa que
+  a nova entra ao finalizar.
+  Já foi diferente, e o resultado foi ruim: o worker esperava *todas* as abas
+  fecharem, o que num celular quase nunca acontece. A versão nova ficava presa
+  indefinidamente e a única saída era limpar os dados do site — levando o
+  histórico junto. Se a troca automática falhar, aparece um botão em vez de
+  tentar de novo em laço.
 - **Raiz do domínio.** Nada define `base` no `vite.config.js`, então o
   `start_url` e o `scope` do manifest, o escopo do service worker e a lista de
   precache assumem `/`. Servido de um subcaminho, os três quebram de uma vez.
@@ -169,13 +210,11 @@ ou excluir uma ficha não altera o histórico já salvo.
 
 ## O que falta
 
-- **Sem tema claro.** O app é escuro por opção. Um tema claro pela metade fica
-  pior que tema nenhum.
 - **Sem GPS.** O modelo de dados de corrida está preparado, mas não há
   rastreamento — e meio rastreamento é pior que nenhum.
 - **Só kg e km.** Libra e milha entram quando houver conversão em todos os
   cálculos, gráficos e exportações.
-- **Supersérie é só um rótulo.** Dá para marcar exercícios com o mesmo código,
-  mas a execução ainda não os agrupa numa tela só.
-- **Sem calendário mensal.** O histórico é lista com filtro de período; a grade
-  de calendário ainda não existe.
+- **Sem exportação por período.** O backup é sempre tudo; não dá para exportar
+  só um intervalo.
+- **Calendário não filtra.** Tocar num dia mostra o que houve nele, mas não
+  reduz os gráficos àquele período.

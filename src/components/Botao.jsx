@@ -2,11 +2,11 @@
    a mão suada no meio da série. */
 
 const VARIANTES = {
-  primario: { background: "var(--acento)", color: "#0d1a20", border: "none", fontWeight: 600 },
+  primario: { background: "var(--acento)", color: "var(--sobre-acento)", border: "none", fontWeight: 600 },
   secundario: { background: "var(--sup2)", color: "var(--txt)", border: "1px solid var(--linha)" },
   fantasma: { background: "transparent", color: "var(--txt-fraco)", border: "1px solid var(--linha)" },
   perigo: { background: "transparent", color: "var(--perigo)", border: "1px solid var(--perigo-borda)" },
-  perigoSolido: { background: "#8e3a33", color: "#fff", border: "none", fontWeight: 600 },
+  perigoSolido: { background: "var(--perigo-solido)", color: "var(--sobre-perigo)", border: "none", fontWeight: 600 },
 };
 
 export default function Botao({
@@ -27,7 +27,7 @@ export default function Botao({
       className={`inline-flex items-center justify-center gap-2 px-3 ${larguraTotal ? "w-full" : ""} ${className}`}
       style={{
         ...base,
-        ...(cor ? { background: cor, color: "#0d1a20", border: "none", fontWeight: 600 } : null),
+        ...(cor ? { background: cor, color: "var(--sobre-acento)", border: "none", fontWeight: 600 } : null),
         minHeight: compacto ? 36 : "var(--toque)",
         borderRadius: "var(--raio)",
         fontSize: 14,

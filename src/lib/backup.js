@@ -5,7 +5,7 @@
 
 import { VERSAO, estadoVazio } from "./schema.js";
 import { migra, ehEstadoV1, normalizaV2 } from "./migrations.js";
-import { hoje, agoraIso, formataData } from "./dates.js";
+import { hoje, agoraIso, formataData, diferencaEmDias } from "./dates.js";
 import { formataDuracao, ritmoSegundosPorKm, formataRitmo, volumeSessao } from "./calculos.js";
 
 /* 25 MB é ordens de grandeza acima de qualquer backup real deste app e ainda
@@ -187,3 +187,24 @@ export function leArquivoComoTexto(arquivo) {
 }
 
 export { estadoVazio, volumeSessao };
+
+/* ---------------------------------------------------- lembrete de backup */
+/* Enquanto a cópia não sai do aparelho, qualquer limpeza do navegador leva
+   tudo — e não existe desfazer. Por isso o app cobra, em vez de esperar a
+   pessoa lembrar sozinha. Só cobra quando há algo a perder. */
+export const DIAS_ATE_LEMBRAR = 14;
+
+export function precisaLembrarBackup(estado, dataDeHoje, limiteDias = DIAS_ATE_LEMBRAR) {
+  const total =
+    (estado.sessoesMusculacao?.length || 0) +
+    (estado.corridas?.length || 0) +
+    (estado.pesagens?.length || 0);
+  if (total === 0) return null;
+
+  const ultima = estado.configuracoes?.ultimaDataBackup;
+  if (!ultima) return { motivo: "nunca", dias: null, registros: total };
+
+  const dias = diferencaEmDias(ultima, dataDeHoje);
+  if (dias === null || dias < limiteDias) return null;
+  return { motivo: "antigo", dias, registros: total };
+}

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { reducer } from "./reducer.js";
 import { carregaEstado, salvaEstado } from "./persistencia.js";
 import { ContextoEstado, ContextoDespacho } from "./contexto.js";
+import { aplicaTema } from "../lib/tema.js";
 
 export function ProvedorApp({ children }) {
   /* Carregar e migrar acontece uma vez só, antes do primeiro render, para a
@@ -27,6 +28,17 @@ export function ProvedorApp({ children }) {
   useEffect(() => {
     document.documentElement.dataset.animacoes = estado.configuracoes.reduzirAnimacoes ? "reduzidas" : "normais";
   }, [estado.configuracoes.reduzirAnimacoes]);
+
+  const preferenciaTema = estado.configuracoes.tema || "escuro";
+  useEffect(() => {
+    const consulta = window.matchMedia("(prefers-color-scheme: light)");
+    const pinta = () => aplicaTema(preferenciaTema, consulta.matches);
+    pinta();
+    /* Só vale acompanhar o sistema quando a preferência é justamente essa. */
+    if (preferenciaTema !== "sistema") return undefined;
+    consulta.addEventListener("change", pinta);
+    return () => consulta.removeEventListener("change", pinta);
+  }, [preferenciaTema]);
 
   const valorDespacho = useMemo(
     () => ({

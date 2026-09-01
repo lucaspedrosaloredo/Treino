@@ -4,6 +4,7 @@ import { ABAS, ABA_PADRAO } from "./navegacao.js";
 import { useDespacho, useEstado } from "../state/contexto.js";
 import { Aviso } from "../components/Basicos.jsx";
 import Botao from "../components/Botao.jsx";
+import { useAtualizacao } from "../hooks/useAtualizacao.js";
 import { formataData, hoje, nomeDoDia } from "../lib/dates.js";
 
 import Hoje from "../features/hoje/Hoje.jsx";
@@ -24,6 +25,9 @@ export default function AppShell() {
   const estado = useEstado();
   const { erroAoSalvar, avisosMigracao, origemDosDados, dispensaAvisos } = useDespacho();
   const [aba, setAba] = useState(ABA_PADRAO);
+  /* Trocar de versão recarrega a página, então a troca automática espera o
+     treino acabar. Sem treino aberto, ela acontece sozinha na abertura. */
+  const atualizacao = useAtualizacao({ podeAtualizarAgora: !estado.sessaoEmAndamento });
   const definicao = ABAS.find((a) => a.chave === aba) || ABAS[0];
   const Tela = TELAS[aba];
 
@@ -57,6 +61,22 @@ export default function AppShell() {
 
       <div className="px-3">
         {erroAoSalvar && <Aviso tipo="erro">{erroAoSalvar}</Aviso>}
+
+        {atualizacao.precisaDecidir && (
+          <div className="mb-3">
+            <Aviso tipo="ok">
+              <strong>Nova versão pronta.</strong>{" "}
+              {estado.sessaoEmAndamento
+                ? "Ela entra sozinha assim que você finalizar o treino — atualizar agora recarregaria a página no meio."
+                : "Toque para atualizar. Seus dados não são afetados."}
+            </Aviso>
+            {!estado.sessaoEmAndamento && (
+              <Botao compacto variante="primario" onClick={atualizacao.atualizar}>
+                Atualizar agora
+              </Botao>
+            )}
+          </div>
+        )}
 
         {avisosMigracao.length > 0 && (
           <div className="mb-3">

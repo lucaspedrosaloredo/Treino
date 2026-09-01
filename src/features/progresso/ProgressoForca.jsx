@@ -96,8 +96,8 @@ export default function ProgressoForca({ estado, intervalo }) {
             tipo="linha"
             dados={porExercicio}
             series={[
-              { chave: "carga", nome: "Maior carga (kg)", cor: "#7FC4E8" },
-              { chave: "volume", nome: "Volume (kg)", cor: "#E4B429" },
+              { chave: "carga", nome: "Maior carga (kg)", cor: "--serie-1" },
+              { chave: "volume", nome: "Volume (kg)", cor: "--serie-2" },
             ]}
             altura={190}
           />
@@ -138,7 +138,7 @@ export default function ProgressoForca({ estado, intervalo }) {
           <GraficoTardio
             tipo="barra"
             dados={grupos.map((g) => ({ rotulo: g.grupo, series: g.series }))}
-            series={[{ chave: "series", nome: "Séries", cor: "#3E9E63" }]}
+            series={[{ chave: "series", nome: "Séries", cor: "--serie-3" }]}
             altura={170}
           />
           <p className="text-xs mt-1" style={{ color: "var(--txt-fraco)", lineHeight: 1.5 }}>

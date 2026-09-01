@@ -3,6 +3,7 @@ import { Check, ChevronDown, Plus, Minus, Repeat, StickyNote, Trophy } from "luc
 
 import { useAcao, useEstado } from "../../state/contexto.js";
 import { fichasAtivas, planoDoDia } from "../../lib/agenda.js";
+import { agrupaSuperseries, letraDoMembro, voltasDoBloco, descansoDoBloco } from "../../lib/sessao.js";
 import {
   sugereProgressao, ultimaExecucao, volumeSessao, seriesConcluidas, recordesPorExercicio, formataDuracao,
 } from "../../lib/calculos.js";
@@ -113,6 +114,7 @@ function SessaoAberta({ estado, despacha, sessao, aoResumir }) {
   const [confirmacao, setConfirmacao] = useState(null);
   const [abertos, setAbertos] = useState(() => new Set([0]));
 
+  const blocos = useMemo(() => agrupaSuperseries(sessao.exercicios), [sessao.exercicios]);
   const totalSeries = sessao.exercicios.reduce((s, e) => s + e.series.length, 0);
   const feitas = seriesConcluidas(sessao);
   const duracao = sessao.iniciadaEm ? segundosEntre(sessao.iniciadaEm, agoraIso()) : null;
@@ -193,19 +195,32 @@ function SessaoAberta({ estado, despacha, sessao, aoResumir }) {
         </div>
       </Cartao>
 
-      {sessao.exercicios.map((ex, i) => (
-        <ExercicioDaSessao
-          key={`${ex.exercicioId}-${i}`}
-          estado={estado}
-          despacha={despacha}
-          sessao={sessao}
-          ex={ex}
-          indice={i}
-          aberto={abertos.has(i)}
-          aoAlternar={() => alterna(i)}
-          cronometro={cronometro}
-        />
-      ))}
+      {blocos.map((bloco) =>
+        bloco.ehSuperserie ? (
+          <BlocoSuperserie
+            key={bloco.id}
+            estado={estado}
+            despacha={despacha}
+            sessao={sessao}
+            bloco={bloco}
+            aberto={abertos.has(bloco.itens[0].indice)}
+            aoAlternar={() => alterna(bloco.itens[0].indice)}
+            cronometro={cronometro}
+          />
+        ) : (
+          <ExercicioDaSessao
+            key={bloco.id}
+            estado={estado}
+            despacha={despacha}
+            sessao={sessao}
+            ex={bloco.itens[0].ex}
+            indice={bloco.itens[0].indice}
+            aberto={abertos.has(bloco.itens[0].indice)}
+            aoAlternar={() => alterna(bloco.itens[0].indice)}
+            cronometro={cronometro}
+          />
+        ),
+      )}
 
       <CampoTexto
         rotulo="Como foi o treino (opcional)"
@@ -246,17 +261,15 @@ function SessaoAberta({ estado, despacha, sessao, aoResumir }) {
 
 /* --------------------------------------------- um exercício da sessão */
 
-function ExercicioDaSessao({ estado, despacha, sessao, ex, indice, aberto, aoAlternar, cronometro }) {
-  const [anotando, setAnotando] = useState(false);
-  const [substituindo, setSubstituindo] = useState(false);
-
+/* O que o exercício traz do passado: a última execução e a sugestão de carga.
+   Sai daqui porque o exercício solto e o membro de supersérie precisam do
+   mesmo. A prescrição vem do snapshot da própria sessão — mudar a ficha no
+   meio do treino não pode alterar a sugestão que já está na tela. */
+function useHistoricoDoExercicio(estado, sessao, ex) {
   const anterior = useMemo(
     () => ultimaExecucao(estado.sessoesMusculacao, ex.exercicioId, sessao.id),
     [estado.sessoesMusculacao, ex.exercicioId, sessao.id],
   );
-
-  /* A prescrição vem do snapshot da própria sessão: mudar a ficha no meio do
-     treino não pode alterar a sugestão que está na tela. */
   const sugestao = useMemo(
     () =>
       sugereProgressao(
@@ -265,6 +278,13 @@ function ExercicioDaSessao({ estado, despacha, sessao, ex, indice, aberto, aoAlt
       ),
     [anterior, ex.repsMinSnapshot, ex.repsMaxSnapshot, ex.incrementoKgSnapshot],
   );
+  return { anterior, sugestao };
+}
+
+function ExercicioDaSessao({ estado, despacha, sessao, ex, indice, aberto, aoAlternar, cronometro }) {
+  const [anotando, setAnotando] = useState(false);
+  const [substituindo, setSubstituindo] = useState(false);
+  const { anterior, sugestao } = useHistoricoDoExercicio(estado, sessao, ex);
 
   const feitas = ex.series.filter((s) => s.concluida).length;
   const preencheTodas = () => {
@@ -403,6 +423,159 @@ function ExercicioDaSessao({ estado, despacha, sessao, ex, indice, aberto, aoAlt
         atual={ex}
       />
     </div>
+  );
+}
+
+/* ------------------------------------------------- bloco de supersérie */
+/* Supersérie é feita alternando: uma série de A, uma de B, e o descanso só no
+   fim da volta. Mostrar os exercícios em cartões separados, como o resto do
+   treino, obrigaria a rolar para cima e para baixo entre uma série e outra —
+   por isso aqui a unidade é a volta, e não o exercício. */
+function BlocoSuperserie({ estado, despacha, sessao, bloco, aberto, aoAlternar, cronometro }) {
+  const voltas = voltasDoBloco(bloco);
+  const descanso = descansoDoBloco(bloco, estado.configuracoes.descansoPadraoSegundos);
+
+  const feitas = bloco.itens.reduce((t, { ex }) => t + ex.series.filter((x) => x.concluida).length, 0);
+  const total = bloco.itens.reduce((t, { ex }) => t + ex.series.length, 0);
+
+  return (
+    <div className="mb-2" style={{ background: "var(--sup)", borderRadius: "var(--raio)", borderLeft: "3px solid var(--aviso)" }}>
+      <button
+        type="button"
+        onClick={aoAlternar}
+        aria-expanded={aberto}
+        className="w-full flex items-center justify-between gap-2 p-3 text-left"
+        style={{ minHeight: "var(--toque)" }}
+      >
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <Repeat size={13} style={{ color: "var(--aviso)", flexShrink: 0 }} />
+            <span className="text-xs" style={{ color: "var(--aviso)", fontWeight: 600 }}>
+              Supersérie {bloco.codigo}
+            </span>
+          </div>
+          {bloco.itens.map(({ ex }, k) => (
+            <div key={ex.exercicioId} className="text-sm" style={{ fontWeight: 500 }}>
+              <span style={{ color: "var(--txt-fraco)" }}>{letraDoMembro(k)} </span>
+              {ex.nomeSnapshot}
+            </div>
+          ))}
+          <div className="text-xs mt-1" style={{ color: "var(--txt-fraco)" }}>
+            {voltas} voltas · sem descanso entre A e B · {descanso}s no fim
+            {feitas > 0 && ` · ${feitas} de ${total} feitas`}
+          </div>
+        </div>
+        <ChevronDown
+          size={16}
+          style={{ color: "var(--txt-fraco)", flexShrink: 0, transform: aberto ? "rotate(180deg)" : "none" }}
+        />
+      </button>
+
+      {aberto && (
+        <div className="px-3 pb-3">
+          <SugestoesDoBloco estado={estado} sessao={sessao} bloco={bloco} />
+          <CabecalhoSeries />
+          {Array.from({ length: voltas }).map((_, volta) => (
+            <div key={volta} className="mb-3">
+              <div className="text-xs mb-1" style={{ color: "var(--txt-apagado)" }}>
+                {volta + 1}ª volta
+              </div>
+              {bloco.itens.map(({ ex, indice }, k) => (
+                <MembroDaVolta
+                  key={`${ex.exercicioId}-${volta}`}
+                  estado={estado}
+                  despacha={despacha}
+                  sessao={sessao}
+                  ex={ex}
+                  indice={indice}
+                  volta={volta}
+                  letra={letraDoMembro(k)}
+                  /* Só o último da volta dispara o descanso: entre A e B não se
+                     descansa, é isso que faz a supersérie ser supersérie. */
+                  ehUltimoDaVolta={k === bloco.itens.length - 1}
+                  descanso={descanso}
+                  cronometro={cronometro}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* As sugestões de carga do bloco ficam juntas no topo, uma linha por
+   exercício: repeti-las dentro de cada volta encheria a tela de texto igual. */
+function SugestoesDoBloco({ estado, sessao, bloco }) {
+  const linhas = bloco.itens.map(({ ex }, k) => ({
+    letra: letraDoMembro(k),
+    nome: ex.nomeSnapshot,
+    ex,
+  }));
+
+  return (
+    <div className="text-xs mb-2 p-2" style={{ background: "var(--sup2)", borderRadius: 3, lineHeight: 1.6 }}>
+      {linhas.map(({ letra, ex }) => (
+        <SugestaoDoMembro key={ex.exercicioId} estado={estado} sessao={sessao} ex={ex} letra={letra} />
+      ))}
+    </div>
+  );
+}
+
+function SugestaoDoMembro({ estado, sessao, ex, letra }) {
+  const { sugestao } = useHistoricoDoExercicio(estado, sessao, ex);
+  if (!sugestao) return null;
+  return (
+    <div>
+      <span style={{ color: "var(--txt-fraco)" }}>{letra}</span>{" "}
+      {sugestao.tipo === "sem_dados" ? (
+        <span style={{ color: "var(--txt-apagado)" }}>{sugestao.motivo}</span>
+      ) : (
+        <>
+          <strong>
+            {sugestao.tipo === "subir" ? "suba para " : "repita "}
+            {formataNumero(sugestao.cargaSugerida)} kg
+          </strong>{" "}
+          <span style={{ color: "var(--txt-fraco)" }}>{sugestao.motivo}</span>
+        </>
+      )}
+    </div>
+  );
+}
+
+function MembroDaVolta({ estado, despacha, sessao, ex, indice, volta, letra, ehUltimoDaVolta, descanso, cronometro }) {
+  const { anterior, sugestao } = useHistoricoDoExercicio(estado, sessao, ex);
+  const serie = ex.series[volta];
+  /* Membros podem ter contagens de série diferentes; nesta volta este aqui
+     pode simplesmente não ter mais nada a fazer. */
+  if (!serie) return null;
+
+  return (
+    <LinhaSerie
+      serie={serie}
+      indice={volta}
+      rotuloColuna={letra}
+      nomeExercicio={ex.nomeSnapshot}
+      anterior={anterior ? anterior.exercicio.series[volta] : null}
+      sugestaoCarga={sugestao?.cargaSugerida}
+      repsAlvo={ex.repsMaxSnapshot}
+      mostraCarga={ex.tipoRegistroSnapshot !== "tempo"}
+      exibirRpe={estado.configuracoes.exibirRpe}
+      exibirRir={estado.configuracoes.exibirRir}
+      aoMudar={(mudancas) =>
+        despacha({ tipo: "SESSAO_SERIE_ATUALIZADA", indiceExercicio: indice, indiceSerie: volta, mudancas })
+      }
+      aoAlternarConcluida={(concluida) => {
+        despacha({
+          tipo: "SESSAO_SERIE_ATUALIZADA",
+          indiceExercicio: indice,
+          indiceSerie: volta,
+          mudancas: { concluida },
+        });
+        if (concluida && ehUltimoDaVolta) cronometro.iniciar(descanso);
+      }}
+    />
   );
 }
 
